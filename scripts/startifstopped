@@ -1,0 +1,10 @@
+#!/bin/bash
+# Start EC2 instance is stopped
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <OwnerTagValue> <CMName>"
+    echo "Scripts starts stopped nodes owned by <OwnerTagValue> and displays public hostname of node with Tag:Name=<CMName>"
+    exit 1
+fi
+ec2-describe-instances --filter "tag-value=$1" | grep "^INSTANCE" | awk '{print $2 " " $5}' | grep -i stopped | awk '{print $1}' | xargs ec2-start-instances
+ec2-describe-instances --filter "tag-value=$2" | grep "^INSTANCE" | awk '{print "export bimalcm="$4}'
