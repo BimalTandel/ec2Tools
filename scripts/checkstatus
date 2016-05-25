@@ -1,0 +1,5 @@
+#!/bin/bash
+# stop EC2 instance if running
+[ -z "$AWS_OWNER" ] && echo "Need to export AWS_OWNER" && exit 1
+
+ec2-describe-instances --filter "tag-value=$AWS_OWNER" | grep "^INSTANCE"

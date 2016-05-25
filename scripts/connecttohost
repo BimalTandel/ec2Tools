@@ -2,7 +2,7 @@
 # Start EC2 instance is stopped
 
 #"${bimalcm:?Need to export bimalcm}"
-[ -z "$bimalcm" ] && echo "Need to export bimalcm" && exit 1
+[ -z "$AWS_HOST" ] && echo "Need to export AWS_HOST" && exit 1
 [ -z "$AWS_PEM_KEY" ] && echo "Need to set AWS_PEM_KEY to path of PEM file" && exit 1
 
-ssh -i $AWS_PEM_KEY ec2-user@$bimalcm
+ssh -i $AWS_PEM_KEY ec2-user@$AWS_HOST

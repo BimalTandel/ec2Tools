@@ -1,9 +1,5 @@
 #!/bin/bash
 # stop EC2 instance if running
+[ -z "$AWS_OWNER" ] && echo "Need to export AWS_OWNER" && exit 1
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <OwnerTagValue>"
-    echo "Scripts stops running nodes owned by <OwnerTagValue>"
-    exit 1
-fi
-ec2-describe-instances --filter "tag-value=$1" | grep "^INSTANCE" | awk '{print $2 " " $6}' | grep -i running | awk '{print $1}' | xargs ec2-stop-instances
+ec2-describe-instances --filter "tag-value=$AWS_OWNER" | grep "^INSTANCE" | awk '{print $2 " " $6}' | grep -i running | awk '{print $1}' | xargs ec2-stop-instances

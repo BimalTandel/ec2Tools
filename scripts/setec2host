@@ -1,0 +1,6 @@
+#!/bin/bash
+# Start EC2 instance is stopped
+[ -z "$AWS_OWNER" ] && echo "Need to export AWS_OWNER" && exit 1
+[ -z "$AWS_HOST_NAME" ] && echo "Need to export AWS_HOST_NAME" && exit 1
+
+ec2-describe-instances --filter "tag-value=$AWS_HOST_NAME" | grep "^INSTANCE" | awk '{print "export AWS_HOST="$4}'

@@ -1,10 +1,22 @@
 #!/bin/bash
 # Start EC2 instance is stopped
+[ -z "$AWS_OWNER" ] && echo "Need to export AWS_OWNER" && exit 1
+[ -z "$AWS_HOST_NAME" ] && echo "Need to export AWS_HOST_NAME" && exit 1
 
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <OwnerTagValue> <CMName>"
-    echo "Scripts starts stopped nodes owned by <OwnerTagValue> and displays public hostname of node with Tag:Name=<CMName>"
-    exit 1
-fi
-ec2-describe-instances --filter "tag-value=$1" | grep "^INSTANCE" | awk '{print $2 " " $5}' | grep -i stopped | awk '{print $1}' | xargs ec2-start-instances
-ec2-describe-instances --filter "tag-value=$2" | grep "^INSTANCE" | awk '{print "export bimalcm="$4}'
+ec2-describe-instances --filter "tag-value=$AWS_OWNER" | grep "^INSTANCE" | awk '{print $2 " " $5}' | grep -i stopped | awk '{print $1}' | xargs ec2-start-instances
+startcount=`ec2-describe-instances --filter "tag-value=$AWS_OWNER" | grep "^INSTANCE" | grep -v running | wc -l`
+while [ $startcount -ne 0 ]
+do
+    echo "Waiting for all instances to be up and running"
+    ec2-describe-instances --filter "tag-value=$AWS_OWNER" | grep "^INSTANCE"
+    startcount=`ec2-describe-instances --filter "tag-value=$AWS_OWNER" | grep "^INSTANCE" | grep -v running | wc -l`
+done
+
+echo "Copy paste the below export command"
+aws_host=`ec2-describe-instances --filter "tag-value=$AWS_HOST_NAME" | grep "^INSTANCE" | awk '{print $4}'`
+
+echo "export AWS_HOST=$aws_host"
+
+ssh-keygen -R $aws_host
+ssh-keyscan -H $aws_host >> ~/.ssh/known_hosts 
+
